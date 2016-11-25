@@ -32,8 +32,10 @@
     'images': [
     ],
     'depends': [
+        'stock',
     ],
     'data': [
+        'views/stock_move_view.xml',
     ],
     'demo': [
     ],

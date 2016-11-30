@@ -13,3 +13,9 @@ Extra modules for stock.picking and related models.
 ## `sale_order_show_cancelled_moves`
 - Displays a table of cancelled moves which is updated dynamically on the sale.order form.
 -   - This is based on any related stock.move records (ones which were created by the SO)
+
+## `stock_disable_invoice_on_return`
+- Disables the facility to invoice a returned picking.
+-   - Intended for use in conjunction with `stock_picking_refund_history`
+-   - Refunding the initial invoice, and then reversing x,y products from stock move. 
+-   -   - This is to workaround bugs introduced when refunding based on a returned picking

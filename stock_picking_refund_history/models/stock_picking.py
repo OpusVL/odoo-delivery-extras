@@ -86,6 +86,12 @@ class StockPicking(models.Model):
         return refund_line_ids
 
     def return_associated_sale(self, origin):
+        # Sometimes odoo concatenates a location with the source doc:
+        # making something like SO0010: WHX: Stock --> Customers
+        try:
+            origin = origin.split(':')[0]
+        except:
+            pass
         return self.env['sale.order'].search([
             ('name', 'ilike', origin),
         ])

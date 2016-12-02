@@ -35,6 +35,8 @@
         'stock',
     ],
     'data': [
+        'views/account_invoice_line_view.xml',
+        'views/stock_location_view.xml',
         'views/stock_picking_view.xml',
     ],
     'demo': [

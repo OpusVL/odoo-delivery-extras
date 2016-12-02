@@ -20,11 +20,16 @@
 #
 ##############################################################################
 
-from . import (
-    account_invoice_line,
-    stock_location,
-    stock_picking,
-    stock_transfer_details,
-)
+from openerp import models, api, fields
 
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
+class AccountInvoiceLine(models.Model):
+    _inherit = "account.invoice.line"
+
+    return_processed = fields.Boolean(string="Return Processed", default=False)
+    quantity_left = fields.Integer(compute="_compute_quantity_left", default=0)
+    quantity_returned = fields.Integer(default=0)
+
+    @api.one
+    @api.depends('quantity_returned', 'quantity')
+    def _compute_quantity_left(self):
+        self.quantity_left = self.quantity - self.quantity_returned

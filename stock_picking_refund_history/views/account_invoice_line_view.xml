@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<openerp>
+    <data>
+        <record model="ir.ui.view" id="view_invoice_line_tree_return_processed">
+            <field name="name">account.invoice.line.tree.return_processed</field>
+            <field name="model">account.invoice.line</field>
+            <field name="type">tree</field>
+            <field name="inherit_id" ref="account.view_invoice_line_tree"/>
+            <field name="arch" type="xml">
+                <field name="name" position="before">
+                    <field name="return_processed"/>
+                    <field name="quantity_returned" invisible="1"/>
+                    <field name="quantity_left" invisible="1"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</openerp>

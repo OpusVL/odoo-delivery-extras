@@ -20,11 +20,15 @@
 #
 ##############################################################################
 
-from . import (
-    account_invoice_line,
-    stock_location,
-    stock_picking,
-    stock_transfer_details,
-)
+from openerp import models, fields
 
-# vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
+
+class StockLocation(models.Model):
+    _inherit = "stock.location"
+
+    # When this flag is True on the dest location of a transfer
+    # we will begin flagging invoice lines as 'Return Processed'
+    is_returns_location = fields.Boolean(
+        string="Is a Returns Location?",
+        default=False,
+    )

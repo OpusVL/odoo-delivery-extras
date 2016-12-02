@@ -24,3 +24,6 @@ Extra modules for stock.picking and related models.
   - Intended for use in conjunction with `stock_picking_refund_history`
   - Refunding the initial invoice, and then reversing x,y products from stock move. 
     - This is to workaround bugs introduced when refunding based on a returned picking
+
+## `stock_picking_get_purchase_id`
+- Adds a field `purchase_id` - computed with `_get_purchase_id` to `stock.picking` to mirror the behaviour of `sale_id` and `_get_sale_id`

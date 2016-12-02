@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <openerp>
     <data>
-        <record id="view_sale_order_form_cancelled_moves" model="ir.ui.view">
-            <field name="name">sale.order.cancelled_moves</field>
+        <record id="view_sale_order_form_show_moves" model="ir.ui.view">
+            <field name="name">sale.order.show_moves</field>
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
                 <field name="order_line" position="after">
-                    <separator string="Cancelled Delivery lines"/>
-                    <field name="cancelled_move_ids"/>
+                    <separator string="Delivery lines"/>
+                    <field name="move_ids"/>
                 </field>
             </field>
         </record>

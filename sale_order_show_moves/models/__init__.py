@@ -2,7 +2,7 @@
 
 ##############################################################################
 #
-# sale_order_show_cancelled_moves
+# sale_order_show_moves
 # Copyright (C) 2016 OpusVL (<http://opusvl.com/>)
 #
 # This program is free software: you can redistribute it and/or modify
@@ -20,31 +20,8 @@
 #
 ##############################################################################
 
-
-{
-    'name': 'Sale Order Show Cancelled Moves',
-    'version': '0.1',
-    'author': 'OpusVL',
-    'website': 'http://opusvl.com/',
-    'summary': '',
-    'category': '',
-    'description': 'Displays a table of cancelled moves whcih is updated dynamically on the sale.order form',
-    'images': [
-    ],
-    'depends': [
-        'sale',
-    ],
-    'data': [
-        'views/sale_order_view.xml',
-    ],
-    'demo': [
-    ],
-    'test': [
-    ],
-    'license': 'AGPL-3',
-    'installable': True,
-    'auto_install': False,
-
-}
+from . import (
+    sale_order,
+)
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

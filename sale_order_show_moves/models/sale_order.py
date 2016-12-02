@@ -2,7 +2,7 @@
 
 ##############################################################################
 #
-# sale_order_show_cancelled_moves
+# sale_order_show_moves
 # Copyright (C) 2016 OpusVL (<http://opusvl.com/>)
 #
 # This program is free software: you can redistribute it and/or modify
@@ -26,28 +26,27 @@ from openerp import models, fields, api
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
-    cancelled_move_ids = fields.Many2many(
+    move_ids = fields.Many2many(
         comodel_name='stock.move',
-        string='Cancelled Moves',
-        help="This field will display any associated stock moves which are in a state of 'Cancelled'",
-        compute="compute_cancelled_move_ids",
+        string='Moves',
+        help="This field will display any associated stock moves",
+        compute="compute_move_ids",
     )
 
-    def compute_cancelled_move_ids(self):
+    def compute_move_ids(self):
         # Skip <class 'openerp.models.NewId'>
         if isinstance(self.id, int):
             pickings = self.return_associated_pickings(self.name)
-            self.cancelled_move_ids = [
-                (6, 0, self.return_cancelled_move_ids(pickings))
+            self.move_ids = [
+                (6, 0, self.return_move_ids(pickings))
             ]
 
-    def return_cancelled_move_ids(self, pickings):
-        cancelled_move_ids = []
+    def return_move_ids(self, pickings):
+        move_ids = []
         for picking in pickings:
             for move_line in picking.move_lines:
-                if move_line.state == 'cancel':
-                    cancelled_move_ids.append(move_line.id)
-        return cancelled_move_ids
+                move_ids.append(move_line.id)
+        return move_ids
 
     def return_associated_pickings(self, so_number):
         return self.env['stock.picking'].search([

@@ -2,7 +2,7 @@
 
 ##############################################################################
 #
-# sale_order_show_cancelled_moves
+# sale_order_show_moves
 # Copyright (C) 2016 OpusVL (<http://opusvl.com/>)
 #
 # This program is free software: you can redistribute it and/or modify

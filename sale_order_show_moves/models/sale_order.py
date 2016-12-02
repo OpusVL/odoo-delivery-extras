@@ -32,11 +32,17 @@ class SaleOrder(models.Model):
         help="This field will display any associated stock moves",
         compute="compute_move_ids",
     )
+    refund_line_ids = fields.Many2many(
+        comodel_name='account.invoice.line',
+        string='Refunded Products',
+        help="This field will display any associated refunds",
+        compute="compute_refund_line_ids",
+    )
 
     def compute_move_ids(self):
         # Skip <class 'openerp.models.NewId'>
         if isinstance(self.id, int):
-            pickings = self.return_associated_pickings(self.name)
+            pickings = self.picking_ids
             self.move_ids = [
                 (6, 0, self.return_move_ids(pickings))
             ]
@@ -48,9 +54,36 @@ class SaleOrder(models.Model):
                 move_ids.append(move_line.id)
         return move_ids
 
-    def return_associated_pickings(self, so_number):
-        return self.env['stock.picking'].search([
-            ('origin', 'ilike', so_number),
-        ])
+    @api.one
+    def compute_refund_line_ids(self):
+        # Skip <class 'openerp.models.NewId'>
+        if isinstance(self.id, int):
+            invoices = self.invoice_ids
+            refund_invoice_sets = self.return_associated_refund(invoices)
+            self.refund_line_ids = [
+                (6, 0, self.return_refund_line_ids(refund_invoice_sets))
+            ]
+
+    def return_associated_refund(self, invoices):
+        """
+        Finds any validated/paid refunds connected with the invoices
+        from a sale/purchase order
+        """
+        refund_ids = []
+        for invoice in invoices:
+            refund_ids.append(self.env['account.invoice'].search([
+                ('origin', '=', invoice.number),
+                ('type', 'in', ['in_refund', 'out_refund']),
+                ('state', 'in', ['open', 'paid']),
+            ]))
+        return refund_ids
+
+    def return_refund_line_ids(self, refund_invoice_sets):
+        refund_line_ids = []
+        for refund_invoice_set in refund_invoice_sets:
+            for refund_invoice in refund_invoice_set:
+                for refund_line in refund_invoice.invoice_line:
+                    refund_line_ids.append(refund_line.id)
+        return refund_line_ids
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

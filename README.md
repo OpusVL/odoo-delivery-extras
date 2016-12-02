@@ -16,6 +16,8 @@ Extra modules for stock.picking and related models.
 ## `sale_order_show_moves`
 - Displays a table of moves which is updated dynamically on the sale.order form.
   - This is based on any related stock.move records (ones which were created by the SO)
+- Also displays a list of refund lines associated with the SO.
+  - This is almost identical behaviour to `stock_picking_refund_history` but on sale.order
 
 ## `stock_disable_invoice_on_return`
 - Disables the facility to invoice a returned picking.

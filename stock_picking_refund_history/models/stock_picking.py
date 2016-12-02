@@ -37,26 +37,13 @@ class StockPicking(models.Model):
     def compute_refund_line_ids(self):
         # Skip <class 'openerp.models.NewId'>
         if isinstance(self.id, int):
-            order = self.return_order()
+            order = self.sale_id or self.purchase_id
             if order:
-                invoices = self.return_associated_invoice(order.name)
+                invoices = order.invoice_ids
                 refund_invoice_sets = self.return_associated_refund(invoices)
                 self.refund_line_ids = [
                     (6, 0, self.return_refund_line_ids(refund_invoice_sets))
                 ]
-
-    def return_order(self):
-        """
-        A slightly sloppy way of checking whether a PO or SO is the original
-        order, so some optimization could be done here
-        """
-        sale = self.return_associated_sale(self.origin)
-        if not sale:
-            sale = self.return_associated_sale_from_return()
-        purchase = self.return_associated_purchase(self.origin)
-        if not purchase:
-            purchase = self.return_associated_purchase_from_return()
-        return sale if sale else purchase
 
     def return_associated_refund(self, invoices):
         """
@@ -72,11 +59,6 @@ class StockPicking(models.Model):
             ]))
         return refund_ids
 
-    def return_associated_invoice(self, order_number):
-        return self.env['account.invoice'].search([
-            ('origin', '=', order_number)
-        ])
-
     def return_refund_line_ids(self, refund_invoice_sets):
         refund_line_ids = []
         for refund_invoice_set in refund_invoice_sets:
@@ -84,43 +66,5 @@ class StockPicking(models.Model):
                 for refund_line in refund_invoice.invoice_line:
                     refund_line_ids.append(refund_line.id)
         return refund_line_ids
-
-    def return_associated_sale(self, origin):
-        # Sometimes odoo concatenates a location with the source doc:
-        # making something like SO0010: WHX: Stock --> Customers
-        try:
-            origin = origin.split(':')[0]
-        except:
-            pass
-        return self.env['sale.order'].search([
-            ('name', 'ilike', origin),
-        ])
-
-    def return_associated_purchase(self, origin):
-        return self.env['purchase.order'].search([
-            ('name', 'ilike', origin),
-        ])
-
-    def return_associated_sale_from_return(self):
-        return self.return_associated_sale(self.follow_return_chain())
-
-    def return_associated_purchase_from_return(self):
-        return self.return_associated_purchase(self.follow_return_chain())
-
-    def follow_return_chain(self):
-        """
-        Go down the chain of reversed transfers until we meet
-        the original document with a PO/SO as the origin
-        """
-        origin = str(self.origin)
-        while origin and ('SO' not in origin or 'PO' not in origin):
-            source_picking_search = self.env['stock.picking'].search([
-                ('name', '=', origin),
-            ])
-            if len(source_picking_search) > 0:
-                origin = str(source_picking_search.origin)
-            else:
-                break
-        return origin
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

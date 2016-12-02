@@ -33,6 +33,7 @@
     ],
     'depends': [
         'stock',
+        'stock_picking_get_purchase_id',
     ],
     'data': [
         'views/account_invoice_line_view.xml',

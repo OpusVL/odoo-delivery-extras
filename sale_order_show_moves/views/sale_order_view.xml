@@ -6,10 +6,12 @@
             <field name="model">sale.order</field>
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
-                <field name="order_line" position="after">
-                    <separator string="Delivery lines"/>
-                    <field name="move_ids"/>
-                </field>
+                <page string="Other Information" position="after">
+                    <page string="Related documents">
+                        <separator string="Delivery lines"/>
+                        <field name="move_ids"/>
+                    </page>
+                </page>
             </field>
         </record>
     </data>

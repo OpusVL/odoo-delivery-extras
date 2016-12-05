@@ -37,9 +37,12 @@ class StockTransferDetails(models.TransientModel):
             if item.destinationloc_id.is_returns_location:
                 prod = item.product_id
                 qty = item.quantity
-                while qty > 0:
-                    for refund_line in self.picking_id.refund_line_ids:
-                        qty = self.generic_check_return_processed(prod, qty, refund_line)
+                if self.picking_id.refund_line_ids:
+                    while qty > 0:
+                        for refund_line in self.picking_id.refund_line_ids:
+                            qty = self.generic_check_return_processed(
+                                prod, qty, refund_line
+                            )
 
 
     def generic_check_return_processed(self, prod, qty, refund_line):

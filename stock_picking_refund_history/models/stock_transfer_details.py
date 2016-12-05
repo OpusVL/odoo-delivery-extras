@@ -43,6 +43,7 @@ class StockTransferDetails(models.TransientModel):
 
 
     def generic_check_return_processed(self, prod, qty, refund_line):
+        # TODO: Make this check generic!
         if prod.is_box:
             if prod.product_variant_id == refund_line.product_id:
                 return self.check_return_processed(refund_line, qty)

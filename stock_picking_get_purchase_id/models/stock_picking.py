@@ -26,7 +26,11 @@ from openerp import models, fields, api
 class StockPicking(models.Model):
     _inherit = "stock.picking"
 
-    purchase_id = fields.One2many('purchase.order', compute="_get_purchase_id")
+    purchase_id = fields.Many2one(
+        comodel_name='purchase.order',
+        store=True, 
+        compute="_get_purchase_id"
+    )
 
     @api.depends('group_id', 'origin')
     def _get_purchase_id(self):

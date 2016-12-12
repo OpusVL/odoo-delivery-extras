@@ -30,19 +30,12 @@ class purchase_order(osv.osv):
     # equals the po_id
     def _get_picking_ids(self, cr, uid, ids, field_names, args, context=None):
         sp = self.pool.get('stock.picking')
-        # For some reason the purchase_id evaluate properly in a model.search()
-        # and odoo just returns all pickings, so we have to loop over
-        # them all and check manually - which is going to create problems
-        # in the long-run where databases have lots of pickings.
-        all_pick_ids = sp.search(cr, uid, [], context=context)
-        all_picks = sp.browse(cr, uid, all_pick_ids, context=context)
         res = {}
         for po_id in ids:
-            pick_ids = []
-            for pick in all_picks:
-                if pick.purchase_id.id == po_id:
-                    pick_ids.append(pick.id)
-            res[po_id] = pick_ids
+            picking_ids = sp.search(cr, uid, [
+                ('purchase_id', '=', po_id)
+            ], context=context)
+            res[po_id] = picking_ids
         return res
 
     _columns = {

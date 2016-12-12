@@ -28,15 +28,15 @@ class StockPicking(models.Model):
 
     purchase_id = fields.One2many('purchase.order', compute="_get_purchase_id")
 
-    @api.depends('group_id')
+    @api.depends('group_id', 'origin')
     def _get_purchase_id(self):
-        po = False
         for picking in self:
+            po = False
             if picking.origin:
                 po = self.return_associated_purchase(picking.origin)
                 if not po:
                     po = self.return_associated_purchase_from_return()
-        self.purchase_id = po
+            picking.purchase_id = po
 
     def return_associated_purchase(self, origin):
         return self.env['purchase.order'].search([

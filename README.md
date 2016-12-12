@@ -27,3 +27,8 @@ Extra modules for stock.picking and related models.
 
 ## `stock_picking_get_purchase_id`
 - Adds a field `purchase_id` - computed with `_get_purchase_id` to `stock.picking` to mirror the behaviour of `sale_id` and `_get_sale_id`
+
+## `stock_quant_multicurrency`
+- Adds `secondary_currency_id` and `secondary_currency_amount` fields to stock.quant
+  - These fields get updated based on the source PO lines currency and price_unit
+  - This is basically a quick workaround version of handling multiple currencies which products could be purchased in - and is to solve the problem of odoo's amount_currency field not populating on journals without a secondary currency set

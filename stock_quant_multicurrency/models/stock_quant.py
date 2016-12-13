@@ -45,9 +45,10 @@ class StockQuant(models.Model):
                     force_location_to
         )
         # Pull the secondary currency info from the original PO line
-        sca, scid = move.get_secondary_currency_info()
-        res.sudo(SUPERUSER_ID).secondary_currency_amount = sca
-        res.sudo(SUPERUSER_ID).secondary_currency_id = scid
+        if move:
+            sca, scid = move.get_secondary_currency_info()
+            res.sudo(SUPERUSER_ID).secondary_currency_amount = sca
+            res.sudo(SUPERUSER_ID).secondary_currency_id = scid
         return res
 
 

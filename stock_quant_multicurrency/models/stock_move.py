@@ -42,6 +42,8 @@ class StockMove(models.Model):
             sca = self.purchase_line_id.price_unit
             scid = self.purchase_line_id.order_id.currency_id
             return sca, scid
+        else:
+            return False, False
 
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

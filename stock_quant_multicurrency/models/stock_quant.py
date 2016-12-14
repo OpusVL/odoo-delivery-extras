@@ -36,20 +36,42 @@ class StockQuant(models.Model):
         help="Amount in currency which the quant was purchased at",
     )
 
-    @api.model
-    def _quant_create(self, qty, move, lot_id=False, owner_id=False,
-                      src_package_id=False, dest_package_id=False,
-                      force_location_from=False, force_location_to=False):
-        res = super(StockQuant, self)._quant_create(qty, move, lot_id, owner_id,
-                    src_package_id, dest_package_id, force_location_from,
-                    force_location_to
+    def _account_entry_move(self, cr, uid, quants, move, context=None):
+        # Pass quants into context so we can access it in _prepare_account_move_line
+        ctx = context.copy()
+        ctx['quants'] = quants
+        return super(StockQuant, self)._account_entry_move(
+            cr, uid, quants, move, context=ctx
         )
-        # Pull the secondary currency info from the original PO line
-        if move:
-            sca, scid = move.get_secondary_currency_info()
-            res.sudo(SUPERUSER_ID).secondary_currency_amount = sca
-            res.sudo(SUPERUSER_ID).secondary_currency_id = scid
-        return res
 
+    def _prepare_account_move_line(self, cr, uid, move, qty, cost,
+                                   credit_account_id, debit_account_id,
+                                   context=None):
+        res = super(StockQuant, self)._prepare_account_move_line(cr, uid, move,
+            qty, cost, credit_account_id, debit_account_id, context=context
+        )
+        if context.get('quants'):
+            quants = context.get('quants')
+            for line in res:
+                line = self._fix_amount_currency(line, quants, move, qty)
+            return res
+
+    def _fix_amount_currency(self, line, quants, move, qty):
+        # We don't want to deal with more than 1 quant for now
+        if len(quants) > 1:
+            return line
+        quant = quants[0]
+        # Only update the quant if we need to
+        if not quant.secondary_currency_id or not quant.secondary_currency_amount:
+            sca, scid = move.get_secondary_currency_info()
+            quant.sudo(SUPERUSER_ID).secondary_currency_amount = sca
+            quant.sudo(SUPERUSER_ID).secondary_currency_id = scid
+        if line[2].get('credit'):
+            line[2]['amount_currency'] = -quant.secondary_currency_amount * qty
+            line[2]['currency_id'] = quant.secondary_currency_id.id
+        if line[2].get('debit'):
+            line[2]['amount_currency'] = quant.secondary_currency_amount * qty
+            line[2]['currency_id'] = quant.secondary_currency_id.id
+        return line
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

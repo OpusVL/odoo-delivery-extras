@@ -57,20 +57,26 @@ class StockQuant(models.Model):
             return res
 
     def _fix_amount_currency(self, line, quants, move, qty):
-        # We don't want to deal with more than 1 quant for now
-        if len(quants) > 1:
-            return line
-        quant = quants[0]
-        # Only update the quant if we need to
-        if not quant.secondary_currency_id or not quant.secondary_currency_amount:
-            sca, scid = move.get_secondary_currency_info()
-            quant.sudo(SUPERUSER_ID).secondary_currency_amount = sca
-            quant.sudo(SUPERUSER_ID).secondary_currency_id = scid
+        total = 0
+        qty_processed = qty
+        for quant in quants:
+            # Only update the quants if we need to
+            if not quant.secondary_currency_id or not quant.secondary_currency_amount:
+                sca, scid = move.get_secondary_currency_info()
+                quant.sudo(SUPERUSER_ID).secondary_currency_amount = sca * quant.qty
+                quant.sudo(SUPERUSER_ID).secondary_currency_id = scid
+            if qty_processed != 0:
+                if qty_processed - quant.qty >= 0:
+                    total += quant.secondary_currency_amount
+                    qty_processed -= quant.qty
+                if qty_processed - quant.qty < 0:
+                    total += (quant.secondary_currency_amount / quant.qty) * qty_processed
+                    qty_processed = 0
         if line[2].get('credit'):
-            line[2]['amount_currency'] = -quant.secondary_currency_amount * qty
+            line[2]['amount_currency'] = -total
             line[2]['currency_id'] = quant.secondary_currency_id.id
         if line[2].get('debit'):
-            line[2]['amount_currency'] = quant.secondary_currency_amount * qty
+            line[2]['amount_currency'] = total
             line[2]['currency_id'] = quant.secondary_currency_id.id
         return line
 

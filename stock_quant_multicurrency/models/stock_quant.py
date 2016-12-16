@@ -58,20 +58,20 @@ class StockQuant(models.Model):
 
     def _fix_amount_currency(self, line, quants, move, qty):
         total = 0
-        qty_processed = qty
+        qty_to_process = qty
         for quant in quants:
             # Only update the quants if we need to
             if not quant.secondary_currency_id or not quant.secondary_currency_amount:
                 sca, scid = move.get_secondary_currency_info()
                 quant.sudo(SUPERUSER_ID).secondary_currency_amount = sca * quant.qty
                 quant.sudo(SUPERUSER_ID).secondary_currency_id = scid
-            if qty_processed != 0:
-                if qty_processed - quant.qty >= 0:
+            if qty_to_process != 0:
+                if qty_to_process - quant.qty >= 0:
                     total += quant.secondary_currency_amount
-                    qty_processed -= quant.qty
-                if qty_processed - quant.qty < 0:
-                    total += (quant.secondary_currency_amount / quant.qty) * qty_processed
-                    qty_processed = 0
+                    qty_to_process -= quant.qty
+                if qty_to_process - quant.qty < 0:
+                    total += (quant.secondary_currency_amount / quant.qty) * qty_to_process
+                    qty_to_process = 0
         if line[2].get('credit'):
             line[2]['amount_currency'] = -total
             line[2]['currency_id'] = quant.secondary_currency_id.id

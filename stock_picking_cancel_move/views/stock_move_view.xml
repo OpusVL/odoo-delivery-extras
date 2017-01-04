@@ -1,13 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
+        <!-- Adding wizard views for action_cancel_amount -->
+        <record model="ir.ui.view" id="wizard_stock_move_cancel_amount">
+            <field name="name">Cancel Amount</field>
+            <field name="model">wizard.stock.move.cancel_amount</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Cancel Amount" version="8.0">
+                    <group>
+                        <field name="amount"/>
+                    </group>
+                    <footer>
+                        <button name="action_cancel_amount" string="Cancel Amount" type="object" class="oe_highlight"/>
+                        <button name="discard_changes" string="Discard" type="object" class="oe_highlight"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action for wizard -->
+        <record id="action_wizard_stock_move_cancel_amount" model="ir.actions.act_window">
+            <field name="name">Cancel Amount</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">wizard.stock.move.cancel_amount</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="wizard_stock_move_cancel_amount"/>
+            <field name="target">new</field>
+        </record>
+
+        <!-- Add a button to point to the action on the stock move form view -->
         <record id="view_move_picking_form_action_cancel" model="ir.ui.view">
             <field name="name">stock.move.form.action_cancel</field>
             <field name="model">stock.move</field>
             <field name="inherit_id" ref="stock.view_move_picking_form"/>
             <field name="arch" type="xml">
                 <button name="do_unreserve" position="after">
-                    <button name="action_cancel" states="draft,assigned,confirmed" string="Cancel Move" type="object"/>
+                    <button
+                       type="action"
+                       name="%(action_wizard_stock_move_cancel_amount)d"
+                       string="Cancel Amount"
+                       class="oe_highlight"
+                       help="Cancel a specific amount from this move"
+                       states="draft,assigned,confirmed"/>
                 </button>
             </field>
         </record>

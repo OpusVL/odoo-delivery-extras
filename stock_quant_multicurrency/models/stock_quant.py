@@ -80,4 +80,29 @@ class StockQuant(models.Model):
             line[2]['currency_id'] = quant.secondary_currency_id.id
         return line
 
+    @api.one
+    def write(self, vals):
+
+        # 14207 - When a quant gets split for a stock move the secondary currency amount doesn't get updated
+        if vals.get('qty'):
+
+            singular_value = self.secondary_currency_amount / self.qty
+            vals['secondary_currency_amount'] = vals['qty'] * singular_value
+
+        return super(StockQuant, self).write(vals)
+
+    def copy(self, cr, uid, id, default=None, context=None):
+
+        # 14207 - When a quant gets split for a stock move the secondary currency amount doesn't get updated
+        previous_quant = self.browse(cr, uid, id, context=context)
+        singular_value = previous_quant.secondary_currency_amount / previous_quant.qty
+        default.update(
+            {
+                "secondary_currency_amount": default['qty'] * singular_value
+            }
+        )
+
+        return super(StockQuant, self).copy(cr, uid, id, default=default, context=context)
+
+
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:
